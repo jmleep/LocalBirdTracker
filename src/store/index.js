@@ -1,30 +1,11 @@
 import { createStore } from 'vuex';
+import location from '/src/store/location';
+import birds from '/src/store/birds';
 
 const store = createStore({
-    state() {
-        return {
-            bird: undefined,
-            userLocation: {
-                lat: undefined,
-                lon: undefined
-            }
-        }
-    },
-    getters: {
-        getBird(state) {
-            return state.bird;
-        },
-        getUserLocation(state) {
-            return state.userLocation;
-        }
-    },
-    mutations: {
-        setBird(state, bird) {
-            state.bird = bird;
-        },
-        setUserLocation(state, location) {
-            state.userLocation = location;
-        }
+    modules: {
+        birds,
+        location
     }
 });
 

@@ -2,7 +2,11 @@
   <div class="container">
     <Nav />
     <div v-if="bird">
-      <h1 class="title">{{ bird.name }}</h1>
+      <div class="header">
+        <router-link to="/" tag="button">‹</router-link>
+        <h1>{{ bird.name }}</h1>
+        <div>{{ bird.sightings.length }} sighting(s)</div>
+      </div>
       <div :style="cssVars" class="content">
         <div class="sightings">
           <div
@@ -32,7 +36,7 @@
 </template>
 
 <script>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Nav from "/src/components/Nav.vue";
@@ -41,16 +45,15 @@ export default {
   components: {
     Nav,
   },
-  setup(props) {
+  setup() {
     const router = useRouter();
     const store = useStore();
 
-    const bird = store.getters.getBird;
-    const { lat, lon } = store.getters.getUserLocation;
+    const bird = computed(() => store.state.birds.activeBird);
+    const lat = computed(() => store.state.location.userLat);
+    const lon = computed(() => store.state.location.userLon);
 
-    console.log(bird);
-
-    if (!bird) {
+    if (!bird.value.sightings.length) {
       router.push({ path: "/" });
     }
 
@@ -69,7 +72,7 @@ export default {
           }),
         });
 
-        const pins = bird.sightings.map(
+        const pins = bird.value.sightings.map(
           (sighting) =>
             new ol.Feature({
               geometry: new ol.geom.Point(
@@ -94,7 +97,7 @@ export default {
             pinsLayer,
           ],
           view: new ol.View({
-            center: ol.proj.fromLonLat([lon, lat]),
+            center: ol.proj.fromLonLat([lon.value, lat.value]),
             zoom: 12,
           }),
         });
@@ -127,8 +130,21 @@ export default {
   width: 100vw;
 }
 
-.title {
+.header {
+  display: flex;
+  align-items: center;
   margin: 0px 20px 20px 20px;
+}
+
+.header h1 {
+  margin: 0px;
+  padding-right: 15px;
+}
+
+.header a {
+  text-decoration: none;
+  padding: 0px 10px 6px 10px;
+  font-size: 2.5em;
 }
 
 .icon {
