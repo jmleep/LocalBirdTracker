@@ -4,7 +4,9 @@
     <div v-if="bird">
       <div class="header">
         <router-link to="/" tag="button">‹</router-link>
-        <h1>{{ bird.name }}</h1>
+        <h1>
+          <div @click="openGoogleForBird()">{{ bird.name }}</div>
+        </h1>
         <div>{{ bird.sightings.length }} sighting(s)</div>
       </div>
       <div :style="cssVars" class="content">
@@ -115,9 +117,17 @@ export default {
       "--height": `${height}px`,
     };
 
+    const openGoogleForBird = () => {
+      window.open(
+        `https://www.google.com/search?q=${bird.value.name}`,
+        "_target"
+      );
+    };
+
     return {
       bird,
       cssVars,
+      openGoogleForBird,
     };
   },
 };
@@ -141,7 +151,12 @@ export default {
   padding-right: 15px;
 }
 
-.header a {
+.header h1 div {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.header a:first-of-type {
   text-decoration: none;
   padding: 0px 10px 6px 10px;
   font-size: 2.5em;
