@@ -8,38 +8,18 @@
 
       <div class="section">
         <div class="section-title">Birds</div>
-        <div class="section-content">
-          <label>
-            <input type="radio" value="notable" v-model="activeBirdListType" />
-            Notable
-          </label>
-          <label>
-            <input type="radio" value="all" v-model="activeBirdListType" />All
-          </label>
-        </div>
+        <RadioButtonGroup v-model="birdListType" :items="birdListItems" />
       </div>
       <div class="section">
         <div class="section-title">Sort</div>
-        <div class="section-content">
-          <label>
-            <input type="radio" value="newest" v-model="activeSort" />
-            Newest
-          </label>
-          <label>
-            <input
-              type="radio"
-              value="alphabetical"
-              v-model="activeSort"
-            />Alphabetical
-          </label>
-        </div>
+        <RadioButtonGroup v-model="sort" :items="sortItems" />
       </div>
     </div>
 
     <div class="birds" v-if="!isFetchingBirds">
       <div
         class="bird-wrapper"
-        v-for="(bird, index) in activeBirdList"
+        v-for="(bird, index) in birdDisplayList"
         :key="bird"
         @click="onClickBird(index)"
       >
@@ -55,32 +35,43 @@ import { onMounted, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Nav from "/src/components/Nav.vue";
-import Location from "/src/pages/Home/Location.vue";
+import Location from "/src/components/Location.vue";
+import RadioButtonGroup from "/src/components/ui/RadioButtonGroup.vue";
 
 export default {
   components: {
     Nav,
     Location,
+    RadioButtonGroup,
   },
   setup() {
     const router = useRouter();
     const store = useStore();
 
-    const activeSort = ref("newest");
-    const activeBirdListType = ref("notable");
-    const activeBirdList = computed(
+    const birdDisplayList = computed(
       () => store.state.birds.activeBirdDisplayList
     );
 
-    watch(activeBirdListType, async (value) => {
+    const birdListType = ref("notable");
+    const birdListItems = [
+      { label: "Notable", value: "notable" },
+      { label: "All", value: "all" },
+    ];
+
+    const sort = ref("newest");
+    const sortItems = [
+      { label: "Newest", value: "newest" },
+      { label: "Alphabetical", value: "alphabetical" },
+    ];
+
+    watch(birdListType, async (value) => {
       store.dispatch("birds/setActiveBirdDisplayList", {
         type: value,
-        sort: activeSort.value,
+        sort: sort.value,
       });
     });
 
-    watch(activeSort, async (value) => {
-      console.log(value);
+    watch(sort, async (value) => {
       store.commit("birds/sortBirdList", value);
     });
 
@@ -91,17 +82,19 @@ export default {
 
     onMounted(async () => {
       store.dispatch("birds/setActiveBirdDisplayList", {
-        type: activeBirdListType.value,
-        sort: activeSort.value,
+        type: birdListType.value,
+        sort: sort.value,
       });
     });
 
     return {
       isFetchingBirds: computed(() => store.state.birds.isFetchingBirds),
       onClickBird,
-      activeBirdList,
-      activeBirdListType,
-      activeSort,
+      birdDisplayList,
+      birdListType,
+      birdListItems,
+      sort,
+      sortItems,
     };
   },
 };
@@ -125,6 +118,12 @@ export default {
   gap: 20px;
   align-items: center;
   padding: 20px 0px;
+}
+
+.data span {
+  height: 25px;
+  width: 25px;
+  background-color: #3b597d;
 }
 
 .section {
@@ -171,5 +170,40 @@ export default {
   background-color: #567eaf;
   color: #fff;
   cursor: pointer;
+}
+
+.radio input[type="radio"] {
+  display: none;
+  /*removes original button*/
+}
+
+.radio label:before {
+  /*styles outer circle*/
+  content: " ";
+  display: inline-block;
+  position: relative;
+  top: 5px;
+  margin: 0 5px 0 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 11px;
+  border: 2px solid #3b597d;
+  background-color: transparent;
+}
+
+.radio label {
+  position: relative;
+}
+
+.radio label input[type="radio"]:checked + span {
+  /*styles inside circle*/
+  border-radius: 11px;
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  top: 9px;
+  left: 4px;
+  display: block;
+  background-color: #567eaf;
 }
 </style>
