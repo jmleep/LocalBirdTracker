@@ -12,9 +12,15 @@
       <div :style="cssVars" class="content">
         <div class="sightings">
           <div
-            v-for="sighting in bird.sightings"
+            v-for="(sighting, index) in bird.sightings"
             :key="sighting"
-            class="sighting-row"
+            :ref="setSightingRefs"
+            :class="
+              index === selectedSighting
+                ? 'sighting-row selected'
+                : 'sighting-row'
+            "
+            @click="onClickSighting(index)"
           >
             <div class="sighting-sub-row">
               <div class="icon">📅</div>
@@ -38,7 +44,7 @@
 </template>
 
 <script>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, ref, onBeforeUpdate, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Nav from "/src/components/Nav.vue";
@@ -55,9 +61,39 @@ export default {
     const lat = computed(() => store.state.location.userLat);
     const lon = computed(() => store.state.location.userLon);
 
+    const selectedSighting = ref(null);
+
     if (!bird.value.sightings.length) {
       router.push({ path: "/" });
     }
+
+    const view = new ol.View({
+      center: ol.proj.fromLonLat([lon.value, lat.value]),
+      zoom: 12,
+    });
+
+    const pins = bird.value.sightings.map((sighting, index) => {
+      const feature = new ol.Feature({
+        geometry: new ol.geom.Point(
+          ol.proj.fromLonLat([sighting.lng, sighting.lat])
+        ),
+      });
+      feature.set("index", index);
+      return feature;
+    });
+
+    let map;
+
+    let sightingRefs = ref([]);
+    // make sure to reset the refs before each update
+    onBeforeUpdate(() => {
+      sightingRefs.value = [];
+    });
+    const setSightingRefs = (el) => {
+      if (el) {
+        sightingRefs.value.push(el);
+      }
+    };
 
     onMounted(() => {
       try {
@@ -74,15 +110,6 @@ export default {
           }),
         });
 
-        const pins = bird.value.sightings.map(
-          (sighting) =>
-            new ol.Feature({
-              geometry: new ol.geom.Point(
-                ol.proj.fromLonLat([sighting.lng, sighting.lat])
-              ),
-            })
-        );
-
         const pinsLayer = new ol.layer.Vector({
           source: new ol.source.Vector({
             features: pins,
@@ -90,7 +117,7 @@ export default {
           style,
         });
 
-        const map = new ol.Map({
+        map = new ol.Map({
           target: "map",
           layers: [
             new ol.layer.Tile({
@@ -98,17 +125,27 @@ export default {
             }),
             pinsLayer,
           ],
-          view: new ol.View({
-            center: ol.proj.fromLonLat([lon.value, lat.value]),
-            zoom: 12,
-          }),
+          view,
+        });
+
+        view.setCenter(pins[0].getGeometry().getCoordinates());
+
+        map.on("click", (e) => {
+          map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+            const index = feature.get("index");
+            selectedSighting.value = index;
+
+            console.log("index", index);
+            console.log(JSON.stringify(sightingRefs.value));
+            sightingRefs.value[index].scrollIntoView();
+          });
         });
       } catch (e) {
         router.push({ path: "/" });
       }
     });
 
-    let height = window.innerHeight - 125;
+    let height = window.innerHeight - 150;
     if (height <= 100) {
       height = window.innerHeight;
     }
@@ -124,10 +161,22 @@ export default {
       );
     };
 
+    const onClickSighting = (index) => {
+      selectedSighting.value = index;
+
+      const point = pins[index].getGeometry();
+      const size = map.getSize();
+      view.centerOn(point.getCoordinates(), size, [size[0] / 2, size[1] / 2]);
+    };
+
     return {
       bird,
+      selectedSighting,
       cssVars,
       openGoogleForBird,
+      onClickSighting,
+      sightingRefs,
+      setSightingRefs,
     };
   },
 };
@@ -169,16 +218,19 @@ export default {
 .sightings {
   overflow-y: scroll;
   height: var(--height);
-}
-
-.sightings :first-child {
-  margin-top: 0px;
+  padding: 10px;
 }
 
 .sighting-row {
-  margin: 20px;
-  padding-top: 20px;
+  padding: 10px;
   border-top: 1px solid #3b597d;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: #567eaf;
+  color: white;
+  cursor: auto;
 }
 
 .sighting-sub-row {

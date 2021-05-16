@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '/src/pages/HomePage.vue';
 import AboutPage from '/src/pages/AboutPage.vue';
-import BirdPage from '/src/pages/BirdPage.vue';
+import BirdDetailPage from '/src/pages/BirdDetailPage.vue';
 
 const routes = [
     {
@@ -17,7 +17,7 @@ const routes = [
     {
         path: '/bird',
         name: 'BirdPage',
-        component: BirdPage,
+        component: BirdDetailPage,
         props: true
     }
 ];
