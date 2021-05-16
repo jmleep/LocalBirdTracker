@@ -135,8 +135,6 @@ export default {
             const index = feature.get("index");
             selectedSighting.value = index;
 
-            console.log("index", index);
-            console.log(JSON.stringify(sightingRefs.value));
             sightingRefs.value[index].scrollIntoView();
           });
         });
