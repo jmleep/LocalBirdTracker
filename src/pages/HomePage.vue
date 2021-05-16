@@ -5,17 +5,17 @@
 
     <div class="data">
       <Location />
-
-      <div class="section">
-        <div class="section-title">Birds</div>
-        <RadioButtonGroup v-model="birdListType" :items="birdListItems" />
-      </div>
-      <div class="section">
-        <div class="section-title">Sort</div>
-        <RadioButtonGroup v-model="sort" :items="sortItems" />
+      <div class="data-list-preferences">
+        <div class="section">
+          <div class="section-title">Birds</div>
+          <RadioButtonGroup v-model="birdListType" :items="birdListItems" />
+        </div>
+        <div class="section">
+          <div class="section-title">Sort</div>
+          <RadioButtonGroup v-model="sort" :items="sortItems" />
+        </div>
       </div>
     </div>
-
     <div class="birds" v-if="!isFetchingBirds">
       <div
         class="bird-wrapper"
@@ -27,6 +27,11 @@
       </div>
     </div>
     <div v-else class="loading">Finding birds...</div>
+    <div v-if="!isLocationAllowed">
+      <Error
+        message="Please refresh and allow location access in order to use the site."
+      />
+    </div>
   </div>
 </template>
 
@@ -37,12 +42,14 @@ import { useStore } from "vuex";
 import Nav from "/src/components/Nav.vue";
 import Location from "/src/components/Location.vue";
 import RadioButtonGroup from "/src/components/ui/RadioButtonGroup.vue";
+import Error from "/src/components/Error.vue";
 
 export default {
   components: {
     Nav,
     Location,
     RadioButtonGroup,
+    Error,
   },
   setup() {
     const router = useRouter();
@@ -89,6 +96,7 @@ export default {
 
     return {
       isFetchingBirds: computed(() => store.state.birds.isFetchingBirds),
+      isLocationAllowed: computed(() => store.state.location.isLocationAllowed),
       onClickBird,
       birdDisplayList,
       birdListType,
@@ -101,23 +109,83 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-flow: column;
-  margin: 0px 100px;
+@media screen and (max-width: 799px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 50px;
+  }
+  .data {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-content: start;
+    padding: 20px 0px;
+  }
+
+  .data .section {
+    margin: 0px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 10px;
+  }
+
+  .data {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-content: start;
+    padding: 20px 0px;
+  }
+
+  .data .section {
+    margin: 0px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (min-width: 800px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 100px;
+  }
+
+  .data {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    padding: 20px;
+  }
+
+  .data div {
+    align-self: start;
+    padding-right: 20px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .header {
   text-align: center;
   margin: 20px 0px;
-}
-
-.data {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: 20px 0px;
 }
 
 .data span {
@@ -130,6 +198,7 @@ export default {
   display: flex;
   flex-flow: column;
   margin: 0px auto;
+  align-self: start;
 }
 
 .section-title {

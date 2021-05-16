@@ -5,8 +5,11 @@
       <div class="header">
         <router-link to="/" tag="button">‹</router-link>
         <h1>
-          <div @click="openGoogleForBird()">{{ bird.name }}</div>
+          <div @click="openGoogleForBird()" class="title">
+            {{ bird.name }}
+          </div>
         </h1>
+        <span class="link">🔗</span>
         <div>{{ bird.sightings.length }} sighting(s)</div>
       </div>
       <div :style="cssVars" class="content">
@@ -181,6 +184,24 @@ export default {
 </script>
 
 <style scoped>
+@media screen and (min-width: 800px) {
+  .content {
+    display: grid;
+    grid-template-columns: 25% 75%;
+  }
+}
+
+@media screen and (max-width: 799px) {
+  .content {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sightings {
+    display: none;
+  }
+}
+
 .container {
   overflow-y: hidden;
   height: 100%;
@@ -193,20 +214,34 @@ export default {
   margin: 0px 20px 20px 20px;
 }
 
-.header h1 {
-  margin: 0px;
-  padding-right: 15px;
-}
-
-.header h1 div {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .header a:first-of-type {
   text-decoration: none;
-  padding: 0px 10px 6px 10px;
-  font-size: 2.5em;
+  padding: 0px 25px 8px 10px;
+  font-size: 3em;
+  color: #567eaf;
+}
+
+.header a:first-of-type:hover {
+  cursor: pointer;
+  color: #3b597d;
+  text-decoration: underline;
+}
+
+.title {
+  margin: 0px;
+  color: #567eaf;
+  padding-right: 5px;
+}
+
+.title:hover {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #3b597d;
+}
+
+.link {
+  font-size: 0.8em;
+  padding-right: 15px;
 }
 
 .icon {
@@ -239,10 +274,5 @@ export default {
 .map {
   height: var(--height);
   width: 100%;
-}
-
-.content {
-  display: grid;
-  grid-template-columns: 25% 75%;
 }
 </style>

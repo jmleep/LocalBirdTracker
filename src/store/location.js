@@ -5,6 +5,7 @@ const location = {
     state: {
         userLat: 0,
         userLon: 0,
+        isLocationAllowed: true,
         regionCode: undefined,
         timeRegionCodeLastRetrieved: undefined
     },
@@ -18,6 +19,10 @@ const location = {
             state.userLat = lat;
             state.userLon = lon;
         },
+        setIsLocationAllowed(state, isLocationAllowed) {
+            console.log(state)
+            state.isLocationAllowed = isLocationAllowed;
+        },
         setRegionCode(state, regionCode) {
             state.regionCode = regionCode;
         },
@@ -26,18 +31,27 @@ const location = {
         }
     },
     actions: {
-        async getUserLocation({ commit, state }) {
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject);
-            });
+        async getUserLocation({ commit }) {
+            let position;
+            try {
+                position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition((resolve), reject);
+                });
+            } catch (err) {
+                console.log(err)
+                commit('setIsLocationAllowed', false);
+            }
 
-            commit(
-                "setUserLocation",
-                {
-                    lat: position.coords.latitude,
-                    lon: position.coords.longitude
-                }
-            );
+            console.log(position)
+            if (position) {
+                commit(
+                    "setUserLocation",
+                    {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    }
+                );
+            }
         },
         async getRegionCode({ commit, state }) {
             if (!state.regionCode || shouldResendRequest(state.timeRegionCodeLastRetrieved)) {
