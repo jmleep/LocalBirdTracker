@@ -2,7 +2,6 @@
   <Nav />
   <div class="container">
     <h1 class="header">Local Bird Tracker</h1>
-
     <div class="data">
       <Location />
       <div class="data-list-preferences">
@@ -16,6 +15,7 @@
         </div>
       </div>
     </div>
+    <EBirdInfo />
     <div class="birds" v-if="!isFetchingBirds">
       <div
         class="bird-wrapper"
@@ -43,6 +43,7 @@ import Nav from "/src/components/Nav.vue";
 import Location from "/src/components/Location.vue";
 import RadioButtonGroup from "/src/components/ui/RadioButtonGroup.vue";
 import Error from "/src/components/Error.vue";
+import EBirdInfo from "/src/components/EBirdInfo.vue";
 
 export default {
   components: {
@@ -50,6 +51,7 @@ export default {
     Location,
     RadioButtonGroup,
     Error,
+    EBirdInfo,
   },
   setup() {
     const router = useRouter();
@@ -169,6 +171,7 @@ export default {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
+    align-items: center;
     padding: 20px;
   }
 
