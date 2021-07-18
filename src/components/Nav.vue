@@ -14,7 +14,6 @@
   flex-flow: row;
   align-items: flex-end;
   justify-content: flex-end;
-  padding: 10px 0px;
 }
 
 .nav-container a {

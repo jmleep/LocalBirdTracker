@@ -1,5 +1,4 @@
 <template>
-  <Nav />
   <div class="container">
     <h1 class="header">Local Bird Tracker</h1>
     <div class="data">
@@ -16,11 +15,11 @@
       </div>
     </div>
     <EBirdInfo />
-    <div class="birds" v-if="!isFetchingBirds">
+    <div v-if="!isFetchingBirds" class="birds">
       <div
-        class="bird-wrapper"
         v-for="(bird, index) in birdDisplayList"
         :key="bird"
+        class="bird-wrapper"
         @click="onClickBird(index)"
       >
         <div class="bird">🐦 {{ bird }}</div>
@@ -39,7 +38,6 @@
 import { onMounted, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import Nav from "/src/components/Nav.vue";
 import Location from "/src/components/Location.vue";
 import RadioButtonGroup from "/src/components/ui/RadioButtonGroup.vue";
 import Error from "/src/components/Error.vue";
@@ -47,7 +45,6 @@ import EBirdInfo from "/src/components/EBirdInfo.vue";
 
 export default {
   components: {
-    Nav,
     Location,
     RadioButtonGroup,
     Error,

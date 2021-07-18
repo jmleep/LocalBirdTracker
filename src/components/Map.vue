@@ -1,36 +1,39 @@
 <template>
-  <div :style="cssVars" id="map" class="map"></div>
+  <div id="map" :style="cssVars" class="map"></div>
 </template>
 
-<script setup="props, {emit}">
-import {
-  defineProps,
-  defineEmit,
-  onMounted,
-  watch,
-  computed,
-  toRefs,
-} from "vue";
+<script setup>
+import { onMounted, watch, computed, toRefs } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 const props = defineProps({
-  sightings: Array,
-  sightingRefs: Array,
-  selectedSighting: Number,
-  cssVars: Object,
+  sightings: {
+    type: Array,
+    required: true,
+  },
+  sightingRefs: {
+    type: Array,
+    required: true,
+  },
+  selectedSighting: {
+    type: Number,
+    required: true,
+  },
+  cssVars: {
+    type: Object,
+    required: true,
+  },
 });
 const emit = defineEmit();
 
 const { sightings, sightingRefs, selectedSighting, cssVars } = toRefs(props);
-
 const store = useStore();
 const router = useRouter();
 
 if (!sightings.value.length) {
   router.push({ path: "/" });
 }
-console.log(sightings.value);
 
 const lat = computed(() => store.state.location.userLat);
 const lon = computed(() => store.state.location.userLon);
@@ -107,7 +110,8 @@ watch(selectedSighting, () => {
 
 <style>
 .map {
+  display: grid;
+  grid-template-columns: 1fr 100px;
   height: var(--height);
-  width: 100%;
 }
 </style>

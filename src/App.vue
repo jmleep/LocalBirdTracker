@@ -1,13 +1,21 @@
 <template>
-  <router-view />
+  <div>
+    <Nav class="nav-container" />
+    <router-view />
+  </div>
 </template>
 
 <script setup>
+import Nav from "./components/Nav.vue";
 </script>
 
 <style>
 body {
   margin: 0;
+}
+
+.nav-container {
+  padding: 15px 0px;
 }
 
 #app {

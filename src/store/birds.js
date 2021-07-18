@@ -17,9 +17,6 @@ const state = {
     timeSinceAllBirdsRetrieved: undefined
 }
 
-const getters = {
-}
-
 const mutations = {
     setActiveBird(state, index) {
         const selectedBird = state.activeBirdDisplayList[index];
@@ -138,7 +135,6 @@ const actions = {
 export default {
     namespaced: true,
     state,
-    getters,
     mutations,
     actions
 }

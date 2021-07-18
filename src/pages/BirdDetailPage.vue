@@ -1,11 +1,10 @@
 <template>
   <div class="container">
-    <Nav />
     <div v-if="bird">
       <div class="header">
-        <router-link to="/" tag="button">‹</router-link>
+        <router-link to="/" tag="button"> ‹ </router-link>
         <h1>
-          <div @click="openGoogleForBird()" class="title">
+          <div class="title" @click="openGoogleForBird()">
             {{ bird.name }}
           </div>
         </h1>
@@ -39,10 +38,10 @@
           </div>
         </div>
         <Map
-          :sightings="bird.sightings"
-          :sightingRefs="sightingRefs"
           v-model:selectedSighting="selectedSighting"
-          :cssVars="cssVars"
+          :sightings="bird.sightings"
+          :sighting-refs="sightingRefs"
+          :css-vars="cssVars"
         />
       </div>
     </div>
@@ -50,15 +49,13 @@
 </template>
 
 <script>
-import { onMounted, computed, ref, onBeforeUpdate } from "vue";
+import { onMounted, computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import Nav from "/src/components/Nav.vue";
 import Map from "/src/components/Map.vue";
 
 export default {
   components: {
-    Nav,
     Map,
   },
   setup() {
@@ -67,16 +64,11 @@ export default {
 
     const bird = computed(() => store.state.birds.activeBird);
     const selectedSighting = ref(null);
+    const sightingRefs = ref([]);
 
     if (!bird.value.sightings.length) {
       router.push({ path: "/" });
     }
-
-    let sightingRefs = ref([]);
-
-    onBeforeUpdate(() => {
-      sightingRefs.value = [];
-    });
 
     const setSightingRefs = (el) => {
       if (el) {
@@ -88,18 +80,13 @@ export default {
       window.scrollTo(0, 0);
     });
 
-    const openGoogleForBird = () => {
-      window.open(
-        `https://www.google.com/search?q=${bird.value.name}`,
-        "_target"
-      );
-    };
+    const openGoogleForBird = () => {};
 
     const onClickSighting = (index) => {
       selectedSighting.value = index;
     };
 
-    let height = window.innerHeight - 150;
+    let height = window.innerHeight - 215;
     if (height <= 100) {
       height = window.innerHeight;
     }
@@ -146,6 +133,7 @@ export default {
   overflow-y: hidden;
   height: 100%;
   width: 100vw;
+  padding-left: 50px;
 }
 
 .header {
@@ -191,7 +179,7 @@ export default {
 .sightings {
   overflow-y: scroll;
   height: var(--height);
-  padding: 0px 10px 10px 10px;
+  padding: 0px 10px 10px 0px;
 }
 
 .sighting-row {
