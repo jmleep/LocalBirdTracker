@@ -47,7 +47,6 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Map from '../components/Map.vue'
-import type { IActiveBird, IBird } from '../types/birds'
 import useBirds from '../composables/birds'
 
 const router = useRouter()

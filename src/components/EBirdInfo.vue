@@ -23,14 +23,14 @@ const isExpanded = ref(false)
 const buttonText = ref('+')
 
 let eBirdLink = ref('https://ebird.org/home')
-const userAgent = navigator.userAgent || navigator.vendor || window.opera
+const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
 if (/android/i.test(userAgent)) {
   eBirdLink.value =
     'https://play.google.com/store/apps/details?id=edu.cornell.birds.ebird&hl=en_US&gl=US'
 }
 
 // iOS detection from: http://stackoverflow.com/a/9039885/177710
-if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
   eBirdLink.value = 'https://apps.apple.com/us/app/ebird/id988799279'
 }
 
