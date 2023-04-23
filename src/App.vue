@@ -5,8 +5,8 @@
   </div>
 </template>
 
-<script setup>
-import Nav from "./components/Nav.vue";
+<script setup lang="ts">
+import Nav from './components/Nav.vue'
 </script>
 
 <style>

@@ -1,25 +1,21 @@
 <template>
   <div class="radio">
-    <label v-for="item in items" :key="item">
+    <label v-for="item in items" :key="item.value">
       <input
         type="radio"
         :value="item.value"
         :checked="item.value == modelValue"
         @change="$emit('update:modelValue', item.value)"
       />
-      <span />
+      <span></span>
       {{ item.label }}
     </label>
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    items: Array,
-    modelValue: String,
-  },
-};
+<script setup lang="ts">
+type IRadioItem = { value: string; label: string }
+defineProps<{ modelValue: string; items: IRadioItem[] }>()
 </script>
 
 <style scoped>
@@ -28,14 +24,14 @@ export default {
   flex-flow: column;
 }
 
-.radio input[type="radio"] {
+.radio input[type='radio'] {
   display: none;
   /*removes original button*/
 }
 
 .radio label:before {
   /*styles outer circle*/
-  content: " ";
+  content: ' ';
   display: inline-block;
   position: relative;
   top: 5px;
@@ -51,7 +47,7 @@ export default {
   position: relative;
 }
 
-.radio label input[type="radio"]:checked + span {
+.radio label input[type='radio']:checked + span {
   /*styles inside circle*/
   border-radius: 11px;
   width: 12px;

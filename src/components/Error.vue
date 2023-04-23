@@ -2,13 +2,8 @@
   <div class="error">{{ message }}</div>
 </template>
 
-<script>
-export default {
-  props: {
-    message: String,
-  },
-  setup() {},
-};
+<script setup lang="ts">
+defineProps<{ message: string }>()
 </script>
 
 <style>

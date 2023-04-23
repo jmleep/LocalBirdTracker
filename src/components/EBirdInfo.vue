@@ -5,51 +5,39 @@
       <div class="expand-button">{{ buttonText }}</div>
     </div>
     <div class="expanded-content" v-if="isExpanded">
-      <div class="separator" />
+      <div class="separator"></div>
       <div>
         Data is sourced from Cornell University's bird tracking software eBird.
         <a :href="eBirdLink" target="_blank">
-          Enter your own sightings and track birds in more detail using their
-          application
+          Enter your own sightings and track birds in more detail using their application
         </a>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref } from 'vue'
 
-export default {
-  setup() {
-    const isExpanded = ref(false);
-    const buttonText = ref("+");
+const isExpanded = ref(false)
+const buttonText = ref('+')
 
-    let eBirdLink = ref("https://ebird.org/home");
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) {
-      eBirdLink.value =
-        "https://play.google.com/store/apps/details?id=edu.cornell.birds.ebird&hl=en_US&gl=US";
-    }
+let eBirdLink = ref('https://ebird.org/home')
+const userAgent = navigator.userAgent || navigator.vendor || window.opera
+if (/android/i.test(userAgent)) {
+  eBirdLink.value =
+    'https://play.google.com/store/apps/details?id=edu.cornell.birds.ebird&hl=en_US&gl=US'
+}
 
-    // iOS detection from: http://stackoverflow.com/a/9039885/177710
-    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-      eBirdLink.value = "https://apps.apple.com/us/app/ebird/id988799279";
-    }
+// iOS detection from: http://stackoverflow.com/a/9039885/177710
+if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+  eBirdLink.value = 'https://apps.apple.com/us/app/ebird/id988799279'
+}
 
-    const toggleExpanded = () => {
-      isExpanded.value = !isExpanded.value;
-      buttonText.value = isExpanded.value ? "-" : "+";
-    };
-
-    return {
-      isExpanded,
-      buttonText,
-      toggleExpanded,
-      eBirdLink,
-    };
-  },
-};
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+  buttonText.value = isExpanded.value ? '-' : '+'
+}
 </script>
 
 <style scoped>

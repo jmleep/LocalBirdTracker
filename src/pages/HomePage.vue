@@ -17,7 +17,7 @@
     <EBirdInfo />
     <div v-if="!isFetchingBirds" class="birds">
       <div
-        v-for="(bird, index) in birdDisplayList"
+        v-for="(bird, index) in activeBirdDisplayList"
         :key="bird"
         class="bird-wrapper"
         @click="onClickBird(index)"
@@ -27,84 +27,60 @@
     </div>
     <div v-else class="loading">Finding birds...</div>
     <div v-if="!isLocationAllowed">
-      <Error
-        message="Please refresh and allow location access in order to use the site."
-      />
+      <Error message="Please refresh and allow location access in order to use the site." />
     </div>
   </div>
 </template>
 
-<script>
-import { onMounted, ref, computed, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-import Location from "/src/components/Location.vue";
-import RadioButtonGroup from "/src/components/ui/RadioButtonGroup.vue";
-import Error from "/src/components/Error.vue";
-import EBirdInfo from "/src/components/EBirdInfo.vue";
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import useBird from '../composables/birds'
+import Location from '../components/Location.vue'
+import RadioButtonGroup from '../components/ui/RadioButtonGroup.vue'
+import Error from '../components/Error.vue'
+import EBirdInfo from '../components/EBirdInfo.vue'
+import useLocation from '../composables/location'
 
-export default {
-  components: {
-    Location,
-    RadioButtonGroup,
-    Error,
-    EBirdInfo,
-  },
-  setup() {
-    const router = useRouter();
-    const store = useStore();
+const router = useRouter()
 
-    const birdDisplayList = computed(
-      () => store.state.birds.activeBirdDisplayList
-    );
+const {
+  activeBirdDisplayList,
+  isFetchingBirds,
+  setActiveBirdDisplayList,
+  setActiveBird,
+  sortBirdList
+} = useBird()
+const { isLocationAllowed } = useLocation()
 
-    const birdListType = ref("notable");
-    const birdListItems = [
-      { label: "Notable", value: "notable" },
-      { label: "All", value: "all" },
-    ];
+const birdListType = ref('notable')
+const birdListItems = [
+  { label: 'Notable', value: 'notable' },
+  { label: 'All', value: 'all' }
+]
 
-    const sort = ref("newest");
-    const sortItems = [
-      { label: "Newest", value: "newest" },
-      { label: "Alphabetical", value: "alphabetical" },
-    ];
+const sort = ref('newest')
+const sortItems = [
+  { label: 'Newest', value: 'newest' },
+  { label: 'Alphabetical', value: 'alphabetical' }
+]
 
-    watch(birdListType, async (value) => {
-      store.dispatch("birds/setActiveBirdDisplayList", {
-        type: value,
-        sort: sort.value,
-      });
-    });
+watch(birdListType, async (value) => {
+  setActiveBirdDisplayList(value, sort.value)
+})
 
-    watch(sort, async (value) => {
-      store.commit("birds/sortBirdList", value);
-    });
+watch(sort, async (value) => {
+  sortBirdList(value)
+})
 
-    const onClickBird = (index) => {
-      store.commit("birds/setActiveBird", index);
-      router.push({ path: "/bird" });
-    };
+const onClickBird = (index: number) => {
+  setActiveBird(index)
+  router.push({ path: '/bird' })
+}
 
-    onMounted(async () => {
-      store.dispatch("birds/setActiveBirdDisplayList", {
-        type: birdListType.value,
-        sort: sort.value,
-      });
-    });
-
-    return {
-      isFetchingBirds: computed(() => store.state.birds.isFetchingBirds),
-      isLocationAllowed: computed(() => store.state.location.isLocationAllowed),
-      onClickBird,
-      birdDisplayList,
-      birdListType,
-      birdListItems,
-      sort,
-      sortItems,
-    };
-  },
-};
+onMounted(async () => {
+  setActiveBirdDisplayList(birdListType.value, sort.value)
+})
 </script>
 
 <style scoped>
@@ -238,6 +214,6 @@ export default {
 
 .loading {
   text-align: center;
-  padding: 25px;
+  padding: 50px;
 }
 </style>

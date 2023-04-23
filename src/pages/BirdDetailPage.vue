@@ -1,27 +1,22 @@
 <template>
   <div class="container">
-    <div v-if="bird">
+    <div v-if="activeBird">
       <div class="header">
         <router-link to="/" tag="button"> ‹ </router-link>
         <h1>
           <div class="title" @click="openGoogleForBird()">
-            {{ bird.name }}
+            {{ activeBird.name }}
           </div>
         </h1>
         <span class="link">🔗</span>
-        <div>{{ bird.sightings.length }} sighting(s)</div>
+        <div>{{ activeBird.sightings.length }} sighting(s)</div>
       </div>
       <div :style="cssVars" class="content">
         <div class="sightings">
           <div
-            v-for="(sighting, index) in bird.sightings"
-            :key="sighting"
-            :ref="setSightingRefs"
-            :class="
-              index === selectedSighting
-                ? 'sighting-row selected'
-                : 'sighting-row'
-            "
+            v-for="(sighting, index) in activeBird.sightings"
+            :key="sighting.locId"
+            :class="index === selectedSighting ? 'sighting-row selected' : 'sighting-row'"
             @click="onClickSighting(index)"
           >
             <div class="sighting-sub-row">
@@ -39,73 +34,59 @@
         </div>
         <Map
           v-model:selectedSighting="selectedSighting"
-          :sightings="bird.sightings"
+          :sightings="activeBird.sightings"
           :sighting-refs="sightingRefs"
           :css-vars="cssVars"
-        />
+        ></Map>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { onMounted, computed, ref } from "vue";
-import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-import Map from "/src/components/Map.vue";
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Map from '../components/Map.vue'
+import type { IActiveBird, IBird } from '../types/birds'
+import useBirds from '../composables/birds'
 
-export default {
-  components: {
-    Map,
-  },
-  setup() {
-    const router = useRouter();
-    const store = useStore();
+const router = useRouter()
 
-    const bird = computed(() => store.state.birds.activeBird);
-    const selectedSighting = ref(null);
-    const sightingRefs = ref([]);
+const { activeBird } = useBirds()
 
-    if (!bird.value.sightings.length) {
-      router.push({ path: "/" });
-    }
+const selectedSighting = ref<number>(0)
+const sightingRefs = ref<HTMLDivElement[]>([])
 
-    const setSightingRefs = (el) => {
-      if (el) {
-        sightingRefs.value.push(el);
-      }
-    };
+if (!activeBird.value.sightings.length) {
+  router.push({ path: '/' })
+}
 
-    onMounted(() => {
-      window.scrollTo(0, 0);
-    });
+const setSightingRefs = (el: HTMLDivElement) => {
+  if (el) {
+    sightingRefs.value.push(el)
+  }
+}
 
-    const openGoogleForBird = () => {};
+onMounted(() => {
+  window.scrollTo(0, 0)
+})
 
-    const onClickSighting = (index) => {
-      selectedSighting.value = index;
-    };
+const openGoogleForBird = () => {
+  window.open(`https://www.google.com/search?q=${activeBird.value.name}`, '_blank')
+}
 
-    let height = window.innerHeight - 215;
-    if (height <= 100) {
-      height = window.innerHeight;
-    }
+const onClickSighting = (index: number) => {
+  selectedSighting.value = index
+}
 
-    const cssVars = {
-      "--height": `${height}px`,
-    };
+let height = window.innerHeight - 215
+if (height <= 100) {
+  height = window.innerHeight
+}
 
-    return {
-      bird,
-      cssVars,
-      selectedSighting,
-      openGoogleForBird,
-      onClickSighting,
-      sightingRefs,
-      setSightingRefs,
-    };
-  },
-};
+const cssVars = {
+  '--height': `${height}px`
+}
 </script>
 
 <style scoped>

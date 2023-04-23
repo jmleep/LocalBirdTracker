@@ -5,9 +5,6 @@
   </div>
 </template>
 
-<script>
-</script>
-
 <style scoped>
 .nav-container {
   display: flex;

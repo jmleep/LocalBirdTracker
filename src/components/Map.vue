@@ -2,110 +2,109 @@
   <div id="map" :style="cssVars" class="map"></div>
 </template>
 
-<script setup>
-import { onMounted, watch, computed, toRefs } from "vue";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+<script setup lang="ts">
+import { onMounted, watch, computed, toRefs } from 'vue'
+import { useRouter } from 'vue-router'
+import useLocation from '../composables/location'
+import type { IBird } from '../types/birds'
+import View from 'ol/View'
+import Map from 'ol/Map'
+import Feature from 'ol/Feature'
+import { fromLonLat } from 'ol/proj'
+import { Point } from 'ol/geom'
+import { Style, Circle, Fill, Stroke } from 'ol/style'
+import { Vector, Tile } from 'ol/layer'
+import { Vector as SourceVector, OSM } from 'ol/source'
 
-const props = defineProps({
-  sightings: {
-    type: Array,
-    required: true,
-  },
-  sightingRefs: {
-    type: Array,
-    required: true,
-  },
-  selectedSighting: {
-    type: Number,
-    required: true,
-  },
-  cssVars: {
-    type: Object,
-    required: true,
-  },
-});
-const emit = defineEmit();
+const { userLat, userLon } = useLocation()
 
-const { sightings, sightingRefs, selectedSighting, cssVars } = toRefs(props);
-const store = useStore();
-const router = useRouter();
+const props = defineProps<{
+  sightings: IBird[]
+  sightingRefs: HTMLDivElement[]
+  selectedSighting: number
+  cssVars: {}
+}>()
+const emit = defineEmits<{ (event: 'update:selectedSighting', value: number): void }>()
+
+const { sightings, sightingRefs, selectedSighting, cssVars } = toRefs(props)
+const router = useRouter()
 
 if (!sightings.value.length) {
-  router.push({ path: "/" });
+  router.push({ path: '/' })
 }
 
-const lat = computed(() => store.state.location.userLat);
-const lon = computed(() => store.state.location.userLon);
-
-const view = new ol.View({
-  center: ol.proj.fromLonLat([lon.value, lat.value]),
-  zoom: 12,
-});
+const view = new View({
+  center: fromLonLat([userLon.value, userLat.value]),
+  zoom: 12
+})
 
 const pins = sightings.value.map((sighting, index) => {
-  const feature = new ol.Feature({
-    geometry: new ol.geom.Point(
-      ol.proj.fromLonLat([sighting.lng, sighting.lat])
-    ),
-  });
-  feature.set("index", index);
-  return feature;
-});
+  const feature = new Feature({
+    geometry: new Point(fromLonLat([sighting.lng, sighting.lat]))
+  })
+  feature.set('index', index)
+  return feature
+})
 
-const style = new ol.style.Style({
-  image: new ol.style.Circle({
+const mapStyle = new Style({
+  image: new Circle({
     radius: 7,
-    fill: new ol.style.Fill({ color: [255, 0, 0] }),
-    stroke: new ol.style.Stroke({
+    fill: new Fill({ color: [255, 0, 0] }),
+    stroke: new Stroke({
       color: [255, 255, 255],
-      width: 2,
-    }),
-  }),
-});
+      width: 2
+    })
+  })
+})
 
-let map;
+let map = new Map()
 
 onMounted(() => {
   try {
-    const pinsLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({
-        features: pins,
+    const pinsLayer = new Vector({
+      source: new SourceVector({
+        features: pins
       }),
-      style,
-    });
+      style: mapStyle
+    })
 
-    map = new ol.Map({
-      target: "map",
+    map = new Map({
+      target: 'map',
       layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM(),
+        new Tile({
+          source: new OSM()
         }),
-        pinsLayer,
+        pinsLayer
       ],
-      view,
-    });
+      view
+    })
 
-    view.setCenter(pins[0].getGeometry().getCoordinates());
+    const firstPinGeometry = pins[0]?.getGeometry()?.getCoordinates()
+    if (firstPinGeometry) {
+      view.setCenter(firstPinGeometry)
+    }
 
-    map.on("click", (e) => {
+    map.on('click', (e) => {
       map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-        const index = feature.get("index");
+        const index = feature.get('index')
 
-        emit("update:selectedSighting", index);
-        sightingRefs.value[index].scrollIntoView();
-      });
-    });
+        emit('update:selectedSighting', index)
+        sightingRefs.value[index].scrollIntoView()
+      })
+    })
   } catch (e) {
-    router.push({ path: "/" });
+    router.push({ path: '/' })
   }
-});
+})
 
 watch(selectedSighting, () => {
-  const point = pins[selectedSighting.value].getGeometry();
-  const size = map.getSize();
-  view.centerOn(point.getCoordinates(), size, [size[0] / 2, size[1] / 2]);
-});
+  const point = pins[selectedSighting.value].getGeometry()
+  const size = map.getSize()
+
+  if (point && size) {
+    view.centerOn(point.getCoordinates(), size, [size[0] / 2, size[1] / 2])
+  }
+})
 </script>
 
 <style>
