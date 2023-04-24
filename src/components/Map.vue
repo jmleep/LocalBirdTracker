@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, computed, toRefs } from 'vue'
+import { onMounted, watch, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import useLocation from '../composables/location'
 import type { IBird } from '../types/birds'
