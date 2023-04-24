@@ -61,7 +61,6 @@ const useBirds = () => {
     } else {
       fetchedBirds = await getAllBirds()
     }
-    console.log(birdSelection.value, fetchedBirds.length)
 
     birdList.value = fetchedBirds
     birdNameList.value = [...new Set(fetchedBirds.map((bird: IBird) => bird.comName))]
