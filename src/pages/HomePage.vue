@@ -6,7 +6,7 @@
       <div class="data-list-preferences">
         <div class="section">
           <div class="section-title">Birds</div>
-          <RadioButtonGroup v-model="birdListType" :items="birdListItems" />
+          <RadioButtonGroup v-model="birdSelection" :items="birdSelectionItems" />
         </div>
         <div class="section">
           <div class="section-title">Sort</div>
@@ -17,7 +17,7 @@
     <EBirdInfo />
     <div v-if="!isFetchingBirds" class="birds">
       <div
-        v-for="(bird, index) in activeBirdDisplayList"
+        v-for="(bird, index) in birdNameList"
         :key="bird"
         class="bird-wrapper"
         @click="onClickBird(index)"
@@ -41,45 +41,30 @@ import RadioButtonGroup from '../components/ui/RadioButtonGroup.vue'
 import Error from '../components/Error.vue'
 import EBirdInfo from '../components/EBirdInfo.vue'
 import useLocation from '../composables/location'
-
+import { Sort, BirdSelection } from '../types/ui'
 const router = useRouter()
 
-const {
-  activeBirdDisplayList,
-  isFetchingBirds,
-  setActiveBirdDisplayList,
-  setActiveBird,
-  sortBirdList
-} = useBird()
+const { isFetchingBirds, setActiveBird, fetchBirds, birdSelection, sort, birdNameList } = useBird()
+
 const { isLocationAllowed } = useLocation()
 
-const birdListType = ref('notable')
-const birdListItems = [
-  { label: 'Notable', value: 'notable' },
-  { label: 'All', value: 'all' }
+const birdSelectionItems = [
+  { label: 'Notable', value: BirdSelection.Notable },
+  { label: 'All', value: BirdSelection.All }
 ]
 
-const sort = ref('newest')
 const sortItems = [
-  { label: 'Newest', value: 'newest' },
-  { label: 'Alphabetical', value: 'alphabetical' }
+  { label: 'Newest', value: Sort.Newest },
+  { label: 'Alphabetical', value: Sort.Alphabetical }
 ]
-
-watch(birdListType, async (value) => {
-  setActiveBirdDisplayList(value, sort.value)
-})
-
-watch(sort, async (value) => {
-  sortBirdList(value)
-})
 
 const onClickBird = (index: number) => {
   setActiveBird(index)
   router.push({ path: '/bird' })
 }
 
-onMounted(async () => {
-  setActiveBirdDisplayList(birdListType.value, sort.value)
+onMounted(() => {
+  fetchBirds()
 })
 </script>
 

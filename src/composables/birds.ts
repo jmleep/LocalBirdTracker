@@ -1,105 +1,118 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { shouldResendRequest } from '../api/util'
 import { fetchRecentObservationsForType } from '../api/eBird'
 import useLocation from './location'
 import type { IActiveBird, IBird } from '../types/birds'
+import { BirdSelection, Sort } from '../types/ui'
 
 const activeBird = ref<IActiveBird>({ name: '', sightings: [] })
 const isFetchingBirds = ref(false)
-const activeBirdList = ref<IBird[]>([])
-const activeBirdDisplayList = ref<string[]>([])
-const allBirds = ref<IBird[]>([])
-const allBirdsDisplayList = ref<string[]>([])
-const notableBirds = ref<IBird[]>([])
-const notableBirdsDisplayList = ref<string[]>([])
+
+const notableBirdList = ref<IBird[]>([])
 const timeSinceNotableBirdsRetrieved = ref<Date | undefined>()
+
+const allBirdList = ref<IBird[]>([])
 const timeSinceAllBirdsRetrieved = ref<Date | undefined>()
+
+const birdNameList = ref<string[]>([])
+const birdList = ref<IBird[]>([])
+
+const sort = ref<Sort>(Sort.Newest)
+const birdSelection = ref<BirdSelection>(BirdSelection.Notable)
 
 const useBirds = () => {
   const { regionCode, getUserLocation } = useLocation()
 
-  const sortBirdList = (by: string) => {
+  watch(sort, (newValue) => {
+    sortBirdNameList(newValue)
+  })
+
+  watch(birdSelection, () => {
+    fetchBirds()
+  })
+
+  const sortBirdNameList = (by: Sort) => {
     switch (by) {
-      case 'alphabetical':
-        activeBirdDisplayList.value = activeBirdDisplayList.value.sort()
+      case Sort.Alphabetical:
+        birdNameList.value = birdNameList.value.sort()
+
         break
-      case 'newest':
-        const sortedList = activeBirdList.value
+      case Sort.Newest:
+        const sortedList = birdList.value
           .sort((a: IBird, b: IBird) => new Date(a.obsDt).valueOf() - new Date(b.obsDt).valueOf())
           .map((bird: IBird) => bird.comName)
 
-        activeBirdDisplayList.value = [...new Set(sortedList)]
+        birdNameList.value = [...new Set(sortedList)]
         break
       default:
         break
     }
   }
 
-  const setActiveBirdDisplayList = async (type: string, sort: string) => {
+  const fetchBirds = async () => {
     isFetchingBirds.value = true
     if (!regionCode.value) {
       await getUserLocation()
     }
 
-    if (type === 'notable') {
-      await getNotableBirds()
-      activeBirdList.value = notableBirds.value
-      activeBirdDisplayList.value = notableBirdsDisplayList.value
-      sortBirdList(sort)
+    let fetchedBirds: IBird[]
+    if (birdSelection.value === BirdSelection.Notable) {
+      fetchedBirds = await getNotableBirds()
     } else {
-      await getAllBirds()
-      activeBirdList.value = allBirds.value
-      allBirdsDisplayList.value = allBirdsDisplayList.value
-      sortBirdList(sort)
+      fetchedBirds = await getAllBirds()
     }
+    console.log(birdSelection.value, fetchedBirds.length)
+
+    birdList.value = fetchedBirds
+    birdNameList.value = [...new Set(fetchedBirds.map((bird: IBird) => bird.comName))]
+
+    sortBirdNameList(sort.value)
 
     isFetchingBirds.value = false
   }
 
-  const getNotableBirds = async () => {
-    if (!notableBirds.value.length || shouldResendRequest(timeSinceNotableBirdsRetrieved.value)) {
+  const getNotableBirds = async (): Promise<IBird[]> => {
+    if (
+      !notableBirdList.value.length ||
+      shouldResendRequest(timeSinceNotableBirdsRetrieved.value)
+    ) {
       try {
         const json = await fetchRecentObservationsForType('notable', regionCode.value)
-
-        const birdDisplayList: string[] = json.map((bird: IBird) => bird.comName)
-
-        notableBirds.value = json
-        notableBirdsDisplayList.value = [...new Set(birdDisplayList)]
         timeSinceNotableBirdsRetrieved.value = new Date()
+        notableBirdList.value = json
       } catch (e) {
         isFetchingBirds.value = false
         console.error(e)
       }
     }
+    return notableBirdList.value
   }
 
-  const getAllBirds = async () => {
-    if (!allBirds.value.length || shouldResendRequest(timeSinceAllBirdsRetrieved.value)) {
+  const getAllBirds = async (): Promise<IBird[]> => {
+    if (!allBirdList.value.length || shouldResendRequest(timeSinceAllBirdsRetrieved.value)) {
       try {
         const json = await fetchRecentObservationsForType('', regionCode.value)
-        console.log(json)
-        const birdDisplayList: string[] = json.map((bird: IBird) => bird.comName)
-
-        allBirds.value = json
-        allBirdsDisplayList.value = [...new Set(birdDisplayList)]
         timeSinceAllBirdsRetrieved.value = new Date()
+        allBirdList.value = json
       } catch (e) {
         isFetchingBirds.value = false
         console.error(e)
       }
     }
+    return allBirdList.value
   }
 
-  const setActiveBird = (index: number) => {
-    const selectedBird = activeBirdDisplayList.value[index]
-    const sightings = activeBirdList.value
-      .filter((bird: IBird) => selectedBird === bird.comName)
+  const setActiveBird = (selectedBirdIndex: number) => {
+    const selectedBirdName = birdNameList.value[selectedBirdIndex]
+
+    const sightings = birdList.value
+      .filter((bird: IBird) => selectedBirdName === bird.comName)
       .sort((s1, s2) => {
         return new Date(s2.obsDt).valueOf() - new Date(s1.obsDt).valueOf()
       })
 
     activeBird.value = {
-      name: selectedBird,
+      name: selectedBirdName,
       sightings
     }
   }
@@ -108,10 +121,10 @@ const useBirds = () => {
     activeBird,
     setActiveBird,
     isFetchingBirds,
-    activeBirdList,
-    activeBirdDisplayList,
-    setActiveBirdDisplayList,
-    sortBirdList
+    birdNameList,
+    sort,
+    birdSelection,
+    fetchBirds
   }
 }
 
