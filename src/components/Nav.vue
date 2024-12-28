@@ -1,9 +1,13 @@
 <template>
   <div class="nav-container">
-    <router-link to="/">Home</router-link>
-    <router-link to="/about">About</router-link>
+    <RouterLink to="/">Home</RouterLink>
+    <RouterLink to="/about">About</RouterLink>
   </div>
 </template>
+
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+</script>
 
 <style scoped>
 .nav-container {

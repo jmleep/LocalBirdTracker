@@ -1,8 +1,9 @@
 <template>
-  <div class="radio">
+  <fieldset class="radio">
     <label v-for="item in items" :key="item.value">
       <input
         type="radio"
+        :name="name"
         :value="item.value"
         :checked="item.value == modelValue"
         @change="$emit('update:modelValue', item.value)"
@@ -10,12 +11,12 @@
       <span></span>
       {{ item.label }}
     </label>
-  </div>
+  </fieldset>
 </template>
 
 <script setup lang="ts">
 type IRadioItem = { value: string; label: string }
-defineProps<{ modelValue: string; items: IRadioItem[] }>()
+defineProps<{ modelValue: string; items: IRadioItem[]; name: string }>()
 </script>
 
 <style scoped>

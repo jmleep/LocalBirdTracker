@@ -1,11 +1,12 @@
 <template>
   <div>
     <Nav class="nav-container"></Nav>
-    <router-view />
+    <RouterView />
   </div>
 </template>
 
 <script setup lang="ts">
+import { RouterView } from 'vue-router'
 import Nav from './components/Nav.vue'
 </script>
 

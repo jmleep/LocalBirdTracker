@@ -2,7 +2,7 @@
   <div class="container">
     <div v-if="activeBird">
       <div class="header">
-        <router-link to="/" tag="button"> ‹ </router-link>
+        <RouterLink to="/" tag="button"> ‹ </RouterLink>
         <h1>
           <div class="title" @click="openGoogleForBird()">
             {{ activeBird.name }}
@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import Map from '../components/Map.vue'
 import useBirds from '../composables/birds'
 
@@ -58,12 +58,6 @@ const sightingRefs = ref<HTMLDivElement[]>([])
 
 if (!activeBird.value.sightings.length) {
   router.push({ path: '/' })
-}
-
-const setSightingRefs = (el: HTMLDivElement) => {
-  if (el) {
-    sightingRefs.value.push(el)
-  }
 }
 
 onMounted(() => {

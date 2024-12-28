@@ -6,11 +6,11 @@
       <div class="data-list-preferences">
         <div class="section">
           <div class="section-title">Birds</div>
-          <RadioButtonGroup v-model="birdSelection" :items="birdSelectionItems" />
+          <RadioButtonGroup v-model="birdSelection" :items="birdSelectionItems" name="bird-type" />
         </div>
         <div class="section">
           <div class="section-title">Sort</div>
-          <RadioButtonGroup v-model="sort" :items="sortItems" />
+          <RadioButtonGroup v-model="sort" :items="sortItems" name="sort" />
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useBird from '../composables/birds'
 import Location from '../components/Location.vue'
