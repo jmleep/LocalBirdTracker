@@ -5,22 +5,29 @@
       <Location />
       <div class="data-list-preferences">
         <div class="section">
-          <div class="section-title">Birds</div>
-          <RadioButtonGroup v-model="birdSelection" :items="birdSelectionItems" name="bird-type" />
+          <RadioButtonGroup
+            v-model="birdSelection"
+            :items="birdSelectionItems"
+            name="bird-type"
+            label="Birds"
+          />
         </div>
         <div class="section">
-          <div class="section-title">Sort</div>
-          <RadioButtonGroup v-model="sort" :items="sortItems" name="sort" />
+          <RadioButtonGroup v-model="sort" :items="sortItems" name="sort" label="Sort" />
         </div>
       </div>
     </div>
-    <EBirdInfo />
+
     <div v-if="!isFetchingBirds" class="birds">
       <div
         v-for="(bird, index) in birdNameList"
+        role="link"
+        tabindex="0"
         :key="bird"
         class="bird-wrapper"
         @click="onClickBird(index)"
+        @keydown.space="onClickBird(index)"
+        @keydown.enter="onClickBird(index)"
       >
         <div class="bird">🐦 {{ bird }}</div>
       </div>
@@ -37,9 +44,8 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useBird from '../composables/birds'
 import Location from '../components/Location.vue'
-import RadioButtonGroup from '../components/ui/RadioButtonGroup.vue'
+import RadioButtonGroup from '../components/RadioButtonGroup.vue'
 import Error from '../components/Error.vue'
-import EBirdInfo from '../components/EBirdInfo.vue'
 import useLocation from '../composables/location'
 import { Sort, BirdSelection } from '../types/ui'
 const router = useRouter()
@@ -69,81 +75,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@media screen and (max-width: 799px) {
-  .container {
-    display: flex;
-    flex-flow: column;
-    margin: 0px 50px;
-  }
-  .data {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    justify-content: start;
-    padding: 20px 0px;
-  }
-
-  .data .section {
-    margin: 0px;
-  }
-
-  .data-list-preferences {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media screen and (max-width: 500px) {
-  .container {
-    display: flex;
-    flex-flow: column;
-    margin: 0px 10px;
-  }
-
-  .data {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    justify-content: start;
-    padding: 20px 0px;
-  }
-
-  .data .section {
-    margin: 0px;
-  }
-
-  .data-list-preferences {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media screen and (min-width: 800px) {
-  .container {
-    display: flex;
-    flex-flow: column;
-    margin: 0px 100px;
-  }
-
-  .data {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around;
-    align-items: center;
-    padding: 20px;
-  }
-
-  .data div {
-    align-self: start;
-    padding-right: 20px;
-  }
-
-  .data-list-preferences {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 .header {
   text-align: center;
   margin: 20px 0px;
@@ -176,7 +107,7 @@ onMounted(() => {
 .bird-wrapper {
   border: 1px solid #3b597d;
   margin: 5px;
-  width: 100%;
+  width: 70%;
 }
 
 .bird {
@@ -200,5 +131,88 @@ onMounted(() => {
 .loading {
   text-align: center;
   padding: 50px;
+}
+
+@media screen and (max-width: 799px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 50px;
+  }
+  .data {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-content: start;
+    padding: 20px 0px;
+  }
+
+  .data .section {
+    margin: 0px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bird-wrapper {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 10px;
+  }
+
+  .data {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    justify-content: start;
+    padding: 20px 0px;
+  }
+
+  .data .section {
+    margin: 0px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bird-wrapper {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 800px) {
+  .container {
+    display: flex;
+    flex-flow: column;
+    margin: 0px 100px;
+  }
+
+  .data {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .data div {
+    align-self: start;
+    padding-right: 20px;
+  }
+
+  .data-list-preferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

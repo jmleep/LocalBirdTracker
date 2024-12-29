@@ -4,7 +4,14 @@
       <div class="header">
         <RouterLink to="/" tag="button"> ‹ </RouterLink>
         <h1>
-          <div class="title" @click="openGoogleForBird()">
+          <div
+            class="title"
+            role="link"
+            tabindex="0"
+            @keydown.enter="openGoogleForBird()"
+            @keydown.space="openGoogleForBird()"
+            @click="openGoogleForBird()"
+          >
             {{ activeBird.name }}
           </div>
         </h1>
@@ -15,9 +22,13 @@
         <div class="sightings">
           <div
             v-for="(sighting, index) in activeBird.sightings"
+            role="button"
+            tabindex="0"
             :key="sighting.locId"
             :class="index === selectedSighting ? 'sighting-row selected' : 'sighting-row'"
             @click="onClickSighting(index)"
+            @keydown.space="onClickSighting(index)"
+            @keydown.enter="onClickSighting(index)"
           >
             <div class="sighting-sub-row">
               <div class="icon">📅</div>
